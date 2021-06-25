@@ -1,6 +1,9 @@
 import React from "react";
 import axios from "axios";
 import "./App.css";
+import dotenv from "dotenv"
+
+dotenv.config()
 
 class ShortenField extends React.Component {
   constructor(props) {
@@ -10,13 +13,14 @@ class ShortenField extends React.Component {
   }
 
   fetchShortUrl = async () => {
+    console.log(process.env)
     const res = await axios.post(
-      `http://localhost:3000/api/shortenURL`,
+      `http://localhost:${process.env.REACT_APP_SERVER_PORT}/api/shortenURL`,
       { url: this.textField.value }
     );
     console.log(res);
     this.setState({
-      url: `http://localhost:3000/api/${res.data.hash}`,
+      url: `http://localhost:${process.env.REACT_APP_SERVER_PORT}/api/${res.data.hash}`,
     });
   };
 
