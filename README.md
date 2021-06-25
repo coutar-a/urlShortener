@@ -8,7 +8,7 @@ Create a file called `.env`  in the root folder and write in it the following:
 
 ```
 SERVER_PORT= # the app's server port
-MONGO_URL=mongodb://localhost:27017/urls # the url of the MongoDB database you want to use
+MONGO_URL= # the url of the MongoDB database you want to use
 REACT_APP_SERVER_PORT= # should be the same as SERVER_PORT, this is a bug workaround 
 ```
 
