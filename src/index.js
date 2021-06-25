@@ -1,12 +1,9 @@
-require('dotenv').config()
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
+var cors = require("cors");
 const mongoose = require("mongoose");
-
-// TODO :
-// - more error handling on url hash route
-// figure out react
-// figure out how to serve react via express
+const path = require("path");
 
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
@@ -17,27 +14,28 @@ const { hashUrl } = require("./utils/hash");
 const { ShortenedUrl } = require("./db/models");
 
 const app = express();
-app.use(bodyParser.json());
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+app.use(bodyParser.json());
+app.use(cors());
+app.use(express.static(path.join(__dirname, "..", "react-app/build")));
+
+app.options("*", cors());
 
 app.get("/api/:hash", async (req, res) => {
   const existingUrl = await ShortenedUrl.findOne({
     hash: req.params.hash,
   }).exec();
-  res.status(200);
-  res.send({
-    url: existingUrl?.url ?? null,
-    hash: existingUrl?.hash ?? req.params.hash,
-  });
+  if (!existingUrl) {
+    res.status(404);
+    return;
+  }
+  res.redirect(301, existingUrl.url);
 });
 
 app.post("/api/shortenURL", async (req, res) => {
   if (!req.body.url) {
     res.status(400);
-    res.render("error", { error: new Error("Invalid url payload") });
+    return;
   }
   const shortHash = hashUrl(req.body.url);
   const existingUrl = await ShortenedUrl.findOne({ hash: shortHash }).exec();
@@ -53,5 +51,7 @@ app.post("/api/shortenURL", async (req, res) => {
 });
 
 app.listen(process.env.SERVER_PORT, () => {
-  console.log(`Example app listening at http://localhost:${process.env.SERVER_PORT}`);
+  console.log(
+    `Example app listening at http://localhost:${process.env.SERVER_PORT}`
+  );
 });
